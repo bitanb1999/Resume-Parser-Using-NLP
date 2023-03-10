@@ -7,8 +7,7 @@ from PyPDF2 import PdfFileReader, PdfFileWriter, PdfFileMerger
 def doctotext(m):
     temp = docx2txt.process(m)
     resume_text = [line.replace('\t', ' ') for line in temp.split('\n') if line]
-    text = ' '.join(resume_text)
-    return (text)
+    return ' '.join(resume_text)
     
 #Extracting text from PDF
 def pdftotext(m):

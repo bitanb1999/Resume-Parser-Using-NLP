@@ -27,14 +27,13 @@ def extract_education(resume_text):
             tex = re.sub(r'[?|$|.|!|,]', r'', tex)
             if tex.upper() in EDUCATION and tex not in STOPWORDS:
                 edu[tex] = text + nlp_text[index + 1]
-                
-                
+
+
 
     # Extract year
     education = []
-    for key in edu.keys():
-        year = re.search(re.compile(r'(((20|19)(\d{})))'), edu[key])
-        if year:
+    for key in edu:
+        if year := re.search(re.compile(r'(((20|19)(\d{})))'), edu[key]):
             education.append((key, ''.join(year[0])))
         else:
             education.append(key)

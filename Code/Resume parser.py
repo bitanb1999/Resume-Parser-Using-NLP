@@ -15,8 +15,7 @@ from PyPDF2 import PdfFileReader, PdfFileWriter, PdfFileMerger
 def doctotext(m):
     temp = docx2txt.process(m)
     resume_text = [line.replace('\t', ' ') for line in temp.split('\n') if line]
-    text = ' '.join(resume_text)
-    return (text)
+    return ' '.join(resume_text)
 
 
 ## Extracting text from PDF
@@ -122,14 +121,13 @@ def extract_education(resume_text):
             tex = re.sub(r'[?|$|.|!|,]', r'', tex)
             if tex.upper() in EDUCATION and tex not in STOPWORDS:
                 edu[tex] = text + nlp_text[index + 1]
-                
-                
+
+
 
     # Extract year
     education = []
-    for key in edu.keys():
-        year = re.search(re.compile(r'(((20|19)(\d{})))'), edu[key])
-        if year:
+    for key in edu:
+        if year := re.search(re.compile(r'(((20|19)(\d{})))'), edu[key]):
             education.append((key, ''.join(year[0])))
         else:
             education.append(key)
@@ -149,34 +147,27 @@ def extract_skills(resume_text):
     colnames = ['skill']
     # reading the csv file
     data = pd.read_csv('skill.csv', names=colnames) 
-    
+
     # extract values
     skills = data.skill.tolist()
     print(skills)
-    skillset = []
-    
-    # check for one-grams (example: python)
-    for token in tokens:
-        if token.lower() in skills:
-            skillset.append(token)
-   
+    skillset = [token for token in tokens if token.lower() in skills]
     for token in noun_chunks:
         token = token.text.lower().strip()
         if token in skills:
             skillset.append(token)
-    return [i.capitalize() for i in set([i.lower() for i in skillset])]
+    return [i.capitalize() for i in {i.lower() for i in skillset}]
   
 print ('Skills',extract_skills(textinput))
 
 def extract_mobile_number(resume_text):
-    phone = re.findall(re.compile(r'(?:(?:\+?([1-9]|[0-9][0-9]|[0-9][0-9][0-9])\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([0-9][1-9]|[0-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?'), resume_text)
-    
-    if phone:
-        number = ''.join(phone[0])
-        if len(number) > 10:
-            return number
-        else:
-            return number
+    if phone := re.findall(
+        re.compile(
+            r'(?:(?:\+?([1-9]|[0-9][0-9]|[0-9][0-9][0-9])\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([0-9][1-9]|[0-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?'
+        ),
+        resume_text,
+    ):
+        return ''.join(phone[0])
 print('Mobile Number: ',extract_mobile_number(textinput))
 
 
